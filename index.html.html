@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esperando el 2026</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300&display=swap');
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #020210; 
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+        }
+
+        .bokeh-bg { position: absolute; width: 100%; height: 100%; z-index: 1; }
+        .light {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(8px);
+            opacity: 0;
+            animation: riseUp var(--duration) infinite linear;
+            background: radial-gradient(circle, var(--color), transparent);
+        }
+        @keyframes riseUp {
+            0% { transform: translateY(110vh) scale(0.5); opacity: 0; }
+            20% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+
+        #countdown-container {
+            z-index: 100;
+            text-align: center;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            cursor: pointer;
+        }
+        
+        #countdown-container:hover { transform: scale(1.05); }
+
+        .title-text {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: #d4af37;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .timer-box {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .time-unit {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 15px 10px;
+            border-radius: 8px;
+            min-width: 70px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            display: block;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: #d4af37;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .hint {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            opacity: 0.5;
+            animation: blink 2s infinite;
+        }
+
+        .main-frame {
+            position: absolute;
+            z-index: 10;
+            width: 380px;
+            padding: 40px;
+            border: 2px solid #d4af37;
+            background: rgba(5, 5, 20, 0.95);
+            box-shadow: 0 0 80px rgba(212, 175, 55, 0.2);
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.5);
+            pointer-events: none;
+            transition: all 1s ease;
+        }
+
+        .main-frame.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: all;
+        }
+
+        .greeting {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            background: linear-gradient(45deg, #d4af37, #fff, #d4af37);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+            animation: shine 3s infinite linear;
+            background-size: 200%;
+        }
+
+        @keyframes shine { to { background-position: 200% center; } }
+        @keyframes blink { 50% { opacity: 1; } }
+
+        .message {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #ddd;
+            min-height: 60px;
+        }
+
+        .hidden { display: none !important; }
+
+    </style>
+</head>
+<body>
+
+    <div class="bokeh-bg" id="bokeh"></div>
+
+    <div id="countdown-container" onclick="startParty(true)">
+        <div class="title-text">Rumbo al 2026</div>
+        <div class="timer-box">
+            <div class="time-unit"><span class="number" id="d">00</span><span class="label">Días</span></div>
+            <div class="time-unit"><span class="number" id="h">00</span><span class="label">Horas</span></div>
+            <div class="time-unit"><span class="number" id="m">00</span><span class="label">Min</span></div>
+            <div class="time-unit"><span class="number" id="s">00</span><span class="label">Seg</span></div>
+        </div>
+        <div class="hint">(Clic para celebrar antes de tiempo)</div>
+    </div>
+
+    <div class="main-frame" id="mainFrame">
+        <div class="greeting">¡Feliz 2026!</div>
+        <div class="message" id="text-display"></div>
+    </div>
+
+    <script>
+        const countDate = new Date('Jan 1, 2026 00:00:00').getTime();
+        
+        let timerInterval;
+        let isPartyStarted = false;
+
+        const sentences = [
+            "Que este nuevo comienzo traiga paz a tu corazón.",
+            "365 nuevas oportunidades para brillar.",
+            "Gracias por los momentos compartidos.",
+            "Salud, éxito y mucha felicidad.",
+            "¡Es tu año!"
+        ];
+        let textIndex = 0;
+
+        function updateCountdown() {
+            if (isPartyStarted) return;
+
+            const now = new Date().getTime();
+            const gap = countDate - now;
+
+            const second = 1000;
+            const minute = second * 60;
+            const hour = minute * 60;
+            const day = hour * 24;
+
+            const d = Math.floor(gap / day);
+            const h = Math.floor((gap % day) / hour);
+            const m = Math.floor((gap % hour) / minute);
+            const s = Math.floor((gap % minute) / second);
+
+            document.getElementById('d').innerText = d < 10 ? '0' + d : d;
+            document.getElementById('h').innerText = h < 10 ? '0' + h : h;
+            document.getElementById('m').innerText = m < 10 ? '0' + m : m;
+            document.getElementById('s').innerText = s < 10 ? '0' + s : s;
+
+            if (gap <= 0) {
+                startParty(false);
+            }
+        }
+
+        function startParty(manual) {
+            if (isPartyStarted) return;
+            isPartyStarted = true;
+            clearInterval(timerInterval);
+
+            const countdown = document.getElementById('countdown-container');
+            countdown.style.transform = "scale(0)";
+            countdown.style.opacity = "0";
+            
+            setTimeout(() => {
+                countdown.classList.add('hidden');
+                document.getElementById('mainFrame').classList.add('active');
+                changeText();
+                setInterval(changeText, 4000);
+                intensifyParticles(); 
+            }, 800);
+        }
+
+        function changeText() {
+            const display = document.getElementById('text-display');
+            display.style.opacity = 0;
+            setTimeout(() => {
+                display.innerText = sentences[textIndex];
+                display.style.opacity = 1;
+                textIndex = (textIndex + 1) % sentences.length;
+            }, 500);
+        }
+
+        const bokehContainer = document.getElementById('bokeh');
+        const colors = ['#FFD700', '#FF4500', '#00FFFF', '#FFFFFF'];
+
+        function createParticles(count, speedMultiplier) {
+            for (let i = 0; i < count; i++) {
+                const light = document.createElement('div');
+                light.className = 'light';
+                const size = Math.random() * 15 + 5;
+                
+                light.style.width = size + 'px';
+                light.style.height = size + 'px';
+                light.style.left = Math.random() * 100 + '%';
+                
+                light.style.setProperty('--color', colors[Math.floor(Math.random() * colors.length)]);
+                
+                const duration = (Math.random() * 10 + 5) / speedMultiplier;
+                light.style.setProperty('--duration', duration + 's');
+                light.style.animationDelay = Math.random() * 5 + 's';
+                
+                bokehContainer.appendChild(light);
+            }
+        }
+
+        function intensifyParticles() {
+            createParticles(50, 2); 
+        }
+
+        createParticles(30, 1); 
+        timerInterval = setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+    </script>
+</body>
+</html>
