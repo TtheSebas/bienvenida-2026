@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Esperando el 2026</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;600&display=swap');
 
         body {
             margin: 0;
@@ -13,10 +13,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #020210; 
+            background: #020210;
             overflow: hidden;
             font-family: 'Montserrat', sans-serif;
             color: white;
+            /* Prevenir scroll en móviles */
+            position: fixed; 
+            width: 100%;
         }
 
         .bokeh-bg { position: absolute; width: 100%; height: 100%; z-index: 1; }
@@ -39,67 +42,77 @@
             text-align: center;
             transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
             cursor: pointer;
+            width: 90%; /* Adaptable al ancho del móvil */
+            max-width: 600px;
         }
         
-        #countdown-container:hover { transform: scale(1.05); }
+        #countdown-container:hover { transform: scale(1.02); }
 
         .title-text {
             font-family: 'Cinzel', serif;
-            font-size: 1.5rem;
+            font-size: 1.8rem; /* Un poco más grande */
             color: #d4af37;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             letter-spacing: 3px;
             text-transform: uppercase;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
         .timer-box {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
+            flex-wrap: wrap; /* Permite que se acomoden si falta espacio */
         }
 
         .time-unit {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(212, 175, 55, 0.3);
-            padding: 15px 10px;
-            border-radius: 8px;
-            min-width: 70px;
+            padding: 15px 5px;
+            border-radius: 12px;
+            width: 75px; /* Ancho fijo para alineación */
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            display: block;
+            font-size: 2.2rem;
+            font-weight: 700;
             color: #fff;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            line-height: 1;
         }
 
         .label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
             color: #d4af37;
-            margin-top: 5px;
-            display: block;
+            margin-top: 8px;
+            letter-spacing: 1px;
         }
 
         .hint {
-            margin-top: 20px;
-            font-size: 0.8rem;
-            opacity: 0.5;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            opacity: 0.7;
             animation: blink 2s infinite;
         }
 
+        /* CUADRO DEL MENSAJE FINAL */
         .main-frame {
             position: absolute;
             z-index: 10;
-            width: 380px;
-            padding: 40px;
+            width: 85%; /* Ocupa el 85% de la pantalla del celular */
+            max-width: 400px; /* Pero no se pasa de 400px en PC */
+            padding: 30px 20px;
             border: 2px solid #d4af37;
             background: rgba(5, 5, 20, 0.95);
-            box-shadow: 0 0 80px rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.3);
             text-align: center;
+            border-radius: 15px;
             opacity: 0;
             transform: scale(0.5);
             pointer-events: none;
@@ -114,27 +127,39 @@
 
         .greeting {
             font-family: 'Cinzel', serif;
-            font-size: 3rem;
+            font-size: 2.5rem; /* Tamaño base */
             background: linear-gradient(45deg, #d4af37, #fff, #d4af37);
-            background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
             margin-bottom: 20px;
+            line-height: 1.2;
             animation: shine 3s infinite linear;
             background-size: 200%;
         }
 
-        @keyframes shine { to { background-position: 200% center; } }
-        @keyframes blink { 50% { opacity: 1; } }
-
         .message {
-            font-size: 1.2rem;
-            line-height: 1.6;
+            font-size: 1.3rem;
+            line-height: 1.5;
             color: #ddd;
-            min-height: 60px;
+            min-height: 80px;
         }
 
+        @keyframes shine { to { background-position: 200% center; } }
+        @keyframes blink { 50% { opacity: 1; } }
         .hidden { display: none !important; }
+
+        /* --- AJUSTES ESPECÍFICOS PARA MÓVIL --- */
+        @media (max-width: 600px) {
+            .title-text { font-size: 1.5rem; margin-bottom: 20px; }
+            .time-unit { width: 65px; padding: 10px 2px; }
+            .number { font-size: 1.8rem; }
+            .label { font-size: 0.55rem; }
+            
+            /* Ajuste del mensaje final en celular */
+            .greeting { font-size: 2rem; } 
+            .message { font-size: 1.1rem; }
+            .main-frame { width: 90%; padding: 25px 15px; }
+        }
 
     </style>
 </head>
@@ -150,7 +175,7 @@
             <div class="time-unit"><span class="number" id="m">00</span><span class="label">Min</span></div>
             <div class="time-unit"><span class="number" id="s">00</span><span class="label">Seg</span></div>
         </div>
-        <div class="hint">(Clic para celebrar antes de tiempo)</div>
+        <div class="hint">(Toca para celebrar)</div>
     </div>
 
     <div class="main-frame" id="mainFrame">
@@ -160,7 +185,6 @@
 
     <script>
         const countDate = new Date('Jan 1, 2026 00:00:00').getTime();
-        
         let timerInterval;
         let isPartyStarted = false;
 
@@ -175,7 +199,6 @@
 
         function updateCountdown() {
             if (isPartyStarted) return;
-
             const now = new Date().getTime();
             const gap = countDate - now;
 
@@ -189,13 +212,13 @@
             const m = Math.floor((gap % hour) / minute);
             const s = Math.floor((gap % minute) / second);
 
-            document.getElementById('d').innerText = d < 10 ? '0' + d : d;
-            document.getElementById('h').innerText = h < 10 ? '0' + h : h;
-            document.getElementById('m').innerText = m < 10 ? '0' + m : m;
-            document.getElementById('s').innerText = s < 10 ? '0' + s : s;
-
             if (gap <= 0) {
                 startParty(false);
+            } else {
+                document.getElementById('d').innerText = d < 10 ? '0' + d : d;
+                document.getElementById('h').innerText = h < 10 ? '0' + h : h;
+                document.getElementById('m').innerText = m < 10 ? '0' + m : m;
+                document.getElementById('s').innerText = s < 10 ? '0' + s : s;
             }
         }
 
@@ -213,7 +236,7 @@
                 document.getElementById('mainFrame').classList.add('active');
                 changeText();
                 setInterval(changeText, 4000);
-                intensifyParticles(); 
+                intensifyParticles();
             }, 800);
         }
 
@@ -235,29 +258,22 @@
                 const light = document.createElement('div');
                 light.className = 'light';
                 const size = Math.random() * 15 + 5;
-                
                 light.style.width = size + 'px';
                 light.style.height = size + 'px';
                 light.style.left = Math.random() * 100 + '%';
-                
                 light.style.setProperty('--color', colors[Math.floor(Math.random() * colors.length)]);
-                
                 const duration = (Math.random() * 10 + 5) / speedMultiplier;
                 light.style.setProperty('--duration', duration + 's');
                 light.style.animationDelay = Math.random() * 5 + 's';
-                
                 bokehContainer.appendChild(light);
             }
         }
 
-        function intensifyParticles() {
-            createParticles(50, 2); 
-        }
+        function intensifyParticles() { createParticles(50, 2); }
 
-        createParticles(30, 1); 
+        createParticles(30, 1);
         timerInterval = setInterval(updateCountdown, 1000);
         updateCountdown();
-
     </script>
 </body>
 </html>
